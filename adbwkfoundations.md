@@ -35,7 +35,7 @@ Completa los siguientes campos:
 
 - **Compartment:**
   ```
-  Daniel-Hernandez-OCI
+  TuNombre-OCI
   ```
 
 ---
@@ -58,11 +58,16 @@ Transaction Processing
 ## 🔹 Paso 4: Configuración de la base de datos
 
 ### Always Free
-- Mantener habilitado si estás en Free Tier
+- Deshabilitado
 
-### OCPU Count
+### Choose Database Version
 ```
-1 OCPU
+26ai
+```
+
+### ECPU Count
+```
+2 ECPU
 ```
 
 ### Compute Auto Scaling
@@ -130,9 +135,5 @@ Available
 
 ---
 
-## 🚀 Próximos pasos
 
-- 🔐 Gestión de usuarios
-- 🌐 Métodos de conexión (Wallet, Public/Private Endpoint)
-- 🛠️ Herramientas incluidas (Database Actions, APEX)
 
