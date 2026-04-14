@@ -71,7 +71,7 @@ Transaction Processing
 ```
 
 ### Compute Auto Scaling
-- Habilitado (recomendado)
+- Deshabilitado
 
 ### Storage
 ```
