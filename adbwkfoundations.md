@@ -252,6 +252,152 @@ https://.../ords/<tuusuario>
 
 👉 Ese valor es el mismo que colocas en el campo **Path**
 
+---
+
+# 🔐 Lab: Configuración de API Key para conexión desde ADB
+
+---
+
+## 🎯 Objetivo
+
+En este laboratorio vamos a generar una **API Key de OCI** y utilizarla para crear una **credencial dentro de Autonomous Database (ADB)**.
+
+👉 Esta credencial permitirá a la base de datos autenticarse contra servicios de OCI, como:
+
+- OCI Generative AI  
+- Object Storage  
+- Otros servicios cloud  
+
+---
+
+## 🧠 ¿Qué es una API Key en OCI?
+
+Una API Key en OCI está compuesta por:
+
+- 🔑 **Llave privada** → se usa para firmar las peticiones  
+- 🔓 **Llave pública** → se registra en OCI  
+- 🆔 Identificadores (OCIDs) → indican quién eres  
+
+👉 En conjunto, permiten autenticación segura sin usar usuario/password.
+
+---
+
+# 🧭 Paso 1: Ir al usuario en OCI
+
+1. Ir a: **Identity & Security → Domains**
+2. Abrir: **Default Domain**
+3. Ir a: **User Management**
+4. Seleccionar tu usuario
+
+👉 Aquí estás entrando al perfil del usuario que generará la API Key.
+
+---
+
+# 🔑 Paso 2: Crear API Key
+
+1. Ir al tab: **API Keys**
+2. Dar clic en: **Add API Key**
+
+---
+
+## 🧭 Paso 3: Generar las llaves
+
+1. Seleccionar: **Generate API Key Pair**
+2. Descargar:
+   - Private Key
+   - Public Key
+
+---
+
+## ⚠️ Importante
+
+- La **llave privada** NO se guarda en OCI  
+- Solo se descarga una vez  
+- La vas a usar más adelante en la base de datos  
+
+---
+
+# 🧾 Paso 4: Guardar configuración
+
+```ini
+[DEFAULT]
+user=ocid1.user.oc1..aaaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+fingerprint=aa:bb:cc:dd:ee:ff:11:22:33:44:55:66:77:88:99:00
+tenancy=ocid1.tenancy.oc1..aaaaaaaayyyyyyyyyyyyyyyyyyyyyyyy
+region=us-ashburn-1
+key_file=<path_to_private_key>
+```
+
+---
+
+## 🧠 Explicación de cada elemento
+
+| Campo | Descripción |
+|------|------------|
+| user | OCID del usuario |
+| fingerprint | Identificador de la llave |
+| tenancy | OCID del tenancy |
+| region | Región OCI |
+| key_file | Ruta del archivo |
+
+---
+
+# 🔍 Paso 5: Obtener la llave privada
+
+1. Abrir la llave privada descargada con Notepad
+2. Copiar contenido completo
+
+```text
+-----BEGIN PRIVATE KEY-----
+...contenido...
+-----END PRIVATE KEY-----
+```
+
+---
+
+# 🧭 Paso 6: Crear credencial en ADB
+
+```sql
+BEGIN
+  DBMS_CLOUD.CREATE_CREDENTIAL(
+    credential_name => 'GENAI_CRED_<TUUSUARIO>',
+    user_ocid       => 'ocid1.user.oc1..aaaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    tenancy_ocid    => 'ocid1.tenancy.oc1..aaaaaaaayyyyyyyyyyyyyyyyyyyyyyyy',
+    private_key     => '-----BEGIN PRIVATE KEY-----
+<PEGAR_AQUI_TU_LLAVE_PRIVADA>
+-----END PRIVATE KEY-----',
+    fingerprint     => 'aa:bb:cc:dd:ee:ff:11:22:33:44:55:66:77:88:99:00'
+  );
+END;
+/
+```
+
+---
+
+## 🧠 Explicación
+
+- credential_name → nombre lógico  
+- user_ocid → identifica usuario  
+- tenancy_ocid → tenancy OCI  
+- private_key → llave privada  
+- fingerprint → identifica llave  
+
+---
+
+# 🚀 Resultado
+
+La credencial queda lista para usar con:
+
+- DBMS_CLOUD  
+- DBMS_CLOUD_AI  
+- Integraciones OCI  
+
+---
+
+# 🎯 Siguiente paso
+
+Usar esta credencial para configurar **Select AI**
+
 
 
 
