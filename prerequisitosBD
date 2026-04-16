@@ -1,0 +1,176 @@
+# Prerrequisitos del LAB
+
+Este documento describe la configuración necesaria previa al
+laboratorio.
+
+> ⚠️ Nota: Se utiliza `TUUSUARIO` como comodín. Reemplazar por el
+> usuario correspondiente.
+
+------------------------------------------------------------------------
+
+## 1. Configuración en OCI
+
+Antes de iniciar, ejecutar la siguiente política:
+
+``` text
+allow group OCIFoundationsWKUsers to manage generative-ai-family in Tenancy
+```
+
+------------------------------------------------------------------------
+
+## 2. Configuración en Base de Datos
+
+### 2.1 Creación de Usuarios
+
+``` sql
+CREATE USER TUUSUARIO IDENTIFIED BY "<PASSWORD_SEGURO>";
+```
+
+> 🔁 Repetir este paso para cada usuario del laboratorio.
+
+------------------------------------------------------------------------
+
+### 2.2 Asignación de Roles
+
+``` sql
+GRANT CONNECT TO TUUSUARIO;
+GRANT CONSOLE_DEVELOPER TO TUUSUARIO;
+GRANT DBA TO TUUSUARIO;
+GRANT DWROLE TO TUUSUARIO;
+GRANT GRAPH_DEVELOPER TO TUUSUARIO;
+GRANT OML_DEVELOPER TO TUUSUARIO;
+GRANT RESOURCE TO TUUSUARIO;
+GRANT SPATIAL_AUTHOR TO TUUSUARIO;
+
+ALTER USER TUUSUARIO DEFAULT ROLE 
+  CONNECT,
+  CONSOLE_DEVELOPER,
+  DWROLE,
+  GRAPH_DEVELOPER,
+  OML_DEVELOPER,
+  RESOURCE,
+  SPATIAL_AUTHOR;
+```
+
+------------------------------------------------------------------------
+
+### 2.3 Habilitar REST y Data Sharing
+
+``` sql
+BEGIN
+    ORDS_ADMIN.ENABLE_SCHEMA(
+        p_enabled => TRUE,
+        p_schema => 'TUUSUARIO',
+        p_url_mapping_type => 'BASE_PATH',
+        p_url_mapping_pattern => 'TUUSUARIO',
+        p_auto_rest_auth=> TRUE
+    );
+
+    C##ADP$SERVICE.DBMS_SHARE.ENABLE_SCHEMA(
+        SCHEMA_NAME => 'TUUSUARIO',
+        ENABLED => TRUE
+    );
+
+    COMMIT;
+END;
+/
+```
+
+------------------------------------------------------------------------
+
+### 2.4 Habilitar Capacidades (Graph, Spatial, OML)
+
+``` sql
+ALTER USER TUUSUARIO GRANT CONNECT THROUGH GRAPH$PROXY_USER;
+ALTER USER TUUSUARIO GRANT CONNECT THROUGH SPATIAL$PROXY_USER;
+ALTER USER TUUSUARIO GRANT CONNECT THROUGH OML$PROXY;
+```
+
+------------------------------------------------------------------------
+
+### 2.5 Asignación de Cuota
+
+``` sql
+ALTER USER TUUSUARIO QUOTA UNLIMITED ON DATA;
+```
+
+------------------------------------------------------------------------
+
+## 3. Creación de Rol de Workshop
+
+``` sql
+CREATE ROLE WORKSHOP_ROLE;
+
+GRANT CREATE SESSION TO WORKSHOP_ROLE;
+GRANT EXECUTE ON DBMS_CLOUD_AI TO WORKSHOP_ROLE;
+GRANT EXECUTE ON DBMS_CLOUD TO WORKSHOP_ROLE;
+GRANT EXECUTE ON DBMS_CLOUD_PIPELINE TO WORKSHOP_ROLE;
+```
+
+------------------------------------------------------------------------
+
+### 3.1 Asignación del Rol a Usuarios
+
+``` sql
+GRANT WORKSHOP_ROLE TO TUUSUARIO;
+```
+
+------------------------------------------------------------------------
+
+## 4. Habilitar Autenticación OCI
+
+``` sql
+BEGIN
+  DBMS_CLOUD_ADMIN.ENABLE_PRINCIPAL_AUTH(provider => 'OCI');
+END;
+/
+```
+
+------------------------------------------------------------------------
+
+## 5. Configuración de ACL de Red
+
+``` sql
+BEGIN
+  SYS.DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE (
+    host => '*.oci.oraclecloud.com',
+    ace  => xs$ace_type(
+              privilege_list => xs$name_list('connect', 'resolve'),
+              principal_name => 'TUUSUARIO',
+              principal_type => xs_acl.ptype_db
+            )
+  );
+END;
+/
+```
+
+------------------------------------------------------------------------
+
+## 6. Verificación de ACL
+
+``` sql
+SELECT HOST, LOWER_PORT, UPPER_PORT,
+       ACE_ORDER, PRINCIPAL, PRINCIPAL_TYPE,
+       GRANT_TYPE, INVERTED_PRINCIPAL, PRIVILEGE,
+       START_DATE, END_DATE
+  FROM (
+    SELECT ACES.*, 
+           DBMS_NETWORK_ACL_UTILITY.CONTAINS_HOST(
+             '*.oci.oraclecloud.com', HOST
+           ) PRECEDENCE
+    FROM DBA_HOST_ACES ACES
+  )
+ WHERE PRECEDENCE IS NOT NULL
+ ORDER BY PRECEDENCE DESC,
+          LOWER_PORT NULLS LAST,
+          UPPER_PORT NULLS LAST,
+          ACE_ORDER;
+```
+
+------------------------------------------------------------------------
+
+## Notas Finales
+
+-   Reemplazar siempre `TUUSUARIO` por el usuario real.
+-   No incluir contraseñas en texto plano en repositorios públicos.
+-   Validar conectividad y permisos antes de iniciar el laboratorio.
