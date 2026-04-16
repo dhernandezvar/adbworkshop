@@ -535,3 +535,405 @@ La credencial queda lista para usar con:
 # 🎯 Siguiente paso
 
 Usar esta credencial para configurar **Select AI**
+
+---
+
+# 🤖 Lab: Configuración de Select AI con OCI Generative AI en ADB
+
+---
+
+## 🎯 Objetivo
+
+En este laboratorio vamos a preparar **Select AI** dentro de Autonomous Database para que pueda interpretar preguntas en lenguaje natural y traducirlas a consultas SQL usando **OCI Generative AI**.
+
+Al finalizar, el usuario podrá:
+
+- Crear y validar un **AI Profile**
+- Confirmar que ADB puede usar el proveedor de AI configurado
+- Probar consultas con tres modos:
+  - `showsql` → mostrar el SQL generado
+  - `runsql` → ejecutar la consulta generada
+  - `narrate` → explicar el resultado en lenguaje natural
+
+---
+
+## 🧠 ¿Qué es un AI Profile?
+
+Un **AI Profile** es la configuración que le dice a Autonomous Database:
+
+- qué proveedor de AI usar,
+- qué credencial utilizar para autenticarse,
+- qué modelo de lenguaje invocar,
+- y qué objetos de la base de datos puede consultar.
+
+👉 En otras palabras, el AI Profile es el puente entre tu esquema de datos y el servicio de AI.
+
+---
+
+# 1️⃣ Ir al área de SQL en ADB
+
+## 🎯 ¿Qué vamos a hacer?
+
+Vamos a abrir el espacio donde ejecutaremos comandos SQL y PL/SQL dentro de Autonomous Database.
+
+👉 Desde aquí vamos a crear el profile, validar que quedó registrado y después probar Select AI con preguntas reales.
+
+## 🧭 Paso a paso
+
+1. Ir al menú principal de ADB.
+2. Seleccionar:
+   **Development → SQL**
+
+## 💡 Qué debes entender
+
+Esta sección es el editor de SQL del navegador. Aquí no instalas nada localmente: todo se ejecuta directamente contra tu base de datos en la nube.
+
+---
+
+# 2️⃣ Crear el AI Profile
+
+## 🎯 ¿Qué vamos a hacer?
+
+Vamos a crear el perfil que Select AI usará para conectarse a OCI Generative AI.
+
+Este perfil define:
+
+- el proveedor: `oci`
+- la credencial que autenticará la conexión
+- la región donde corre el servicio
+- el modelo de AI
+- las tablas que podrán ser consultadas
+
+## 🧾 Código
+
+```sql
+BEGIN
+  DBMS_CLOUD_AI.CREATE_PROFILE(
+    profile_name   => 'OCIGenAI_<TUUSUARIO>',
+    attributes     =>'{
+      "provider": "oci",
+      "credential_name": "GENAI_CRED_<TUUSUARIO>",
+      "region": "us-ashburn-1",
+      "model": "xai.grok-4",
+      "object_list": [
+        {"owner": "<TUUSUARIO>", "name": "INDICADORES_MACRO"},
+        {"owner": "<TUUSUARIO>", "name": "SISTEMA_BANCARIO"},
+        {"owner": "<TUUSUARIO>", "name": "TRANSACCIONES"}
+      ]
+    }'
+  );
+END;
+/
+```
+
+## 🧠 Explicación de cada parte
+
+- `profile_name`  
+  Es el nombre lógico del AI Profile dentro de la sesión y del esquema.
+
+- `provider`  
+  Indica que el servicio de AI que se usará pertenece a OCI.
+
+- `credential_name`  
+  Es la credencial que ya creaste previamente en ADB para autenticarte contra OCI.
+
+- `region`  
+  Define la región donde se invocará el servicio de AI. En este lab usamos `us-ashburn-1`.
+
+- `model`  
+  Es el modelo que se utilizará para interpretar el lenguaje natural.
+
+- `object_list`  
+  Lista los objetos del esquema que Select AI puede consultar. Aquí se autorizan las tres tablas del laboratorio.
+
+## 💡 Qué debes entender
+
+Este paso no ejecuta consultas todavía. Solo prepara la configuración para que Select AI sepa:
+
+- dónde consultar,
+- con qué credenciales,
+- y sobre qué tablas trabajar.
+
+---
+
+# 3️⃣ Validar que el AI Profile quedó bien creado
+
+## 🎯 ¿Qué vamos a hacer?
+
+Vamos a comprobar que el profile sí existe en la sesión actual y que sus atributos quedaron almacenados correctamente.
+
+## 🧾 Validación 1
+
+```sql
+SELECT *
+FROM USER_CLOUD_AI_PROFILES;
+```
+
+## 🧾 Validación 2
+
+```sql
+SELECT *
+FROM USER_CLOUD_AI_PROFILE_ATTRIBUTES;
+```
+
+## 🧠 Explicación de cada consulta
+
+- `USER_CLOUD_AI_PROFILES`  
+  Muestra los perfiles de AI creados para tu esquema.
+
+- `USER_CLOUD_AI_PROFILE_ATTRIBUTES`  
+  Muestra los parámetros internos del profile, como proveedor, modelo, región y credencial.
+
+## ✅ Resultado esperado
+
+Debes ver:
+
+- el profile `OCIGenAI_<TUUSUARIO>`
+- los atributos que configuraste en el paso anterior
+
+👉 Si no aparece, el profile no quedó activo o fue creado en otro esquema/sesión.
+
+---
+
+# 4️⃣ Probar Select AI con preguntas reales
+
+## 🎯 ¿Qué vamos a hacer?
+
+Ahora vamos a usar lenguaje natural para pedirle a Select AI que:
+
+- muestre el SQL que generaría,
+- ejecute la consulta,
+- o explique el resultado.
+
+## 🧠 Qué hace cada action
+
+- `showsql`  
+  Genera y devuelve el SQL, pero no lo ejecuta.
+
+- `runsql`  
+  Genera el SQL y lo ejecuta contra las tablas disponibles.
+
+- `narrate`  
+  Usa el resultado para responder en lenguaje natural.
+
+## 💡 Importante
+
+En todas las consultas de este bloque se usa:
+
+```text
+profile_name => 'OCIGenAI_TUUSUARIO'
+```
+
+👉 Sustituye ese valor por el nombre real del profile que creaste, por ejemplo `OCIGenAI_DHERNANDEZ`.
+
+---
+
+## 4.1 Promedio de inflación por año
+
+### ¿Qué vamos a hacer?
+Vamos a pedirle a Select AI que interprete una pregunta de análisis macroeconómico sobre la evolución de la inflación.
+
+### a) Mostrar el SQL generado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es el promedio de inflación por año?',
+  action => 'showsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### b) Ejecutar la consulta generada
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es el promedio de inflación por año?',
+  action => 'runsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### c) Narrar el resultado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es el promedio de inflación por año?',
+  action => 'narrate',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+---
+
+## 4.2 Banco con mayor cantidad de activos
+
+### ¿Qué vamos a hacer?
+Vamos a consultar cuál banco presenta el valor más alto en la columna de activos.
+
+### a) Mostrar el SQL generado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Qué banco tiene la mayor cantidad de activos?',
+  action => 'showsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### b) Ejecutar la consulta generada
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Qué banco tiene la mayor cantidad de activos?',
+  action => 'runsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### c) Narrar el resultado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Qué banco tiene la mayor cantidad de activos?',
+  action => 'narrate',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+---
+
+## 4.3 Total de remesas registradas en 2023
+
+### ¿Qué vamos a hacer?
+Vamos a sumar las transacciones de remesas correspondientes al año 2023.
+
+### a) Mostrar el SQL generado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es el total de remesas registradas en el año 2023?',
+  action => 'showsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### b) Ejecutar la consulta generada
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es el total de remesas registradas en el año 2023?',
+  action => 'runsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### c) Narrar el resultado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es el total de remesas registradas en el año 2023?',
+  action => 'narrate',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+---
+
+## 4.4 Evolución de reservas internacionales
+
+### ¿Qué vamos a hacer?
+Vamos a revisar cómo han cambiado las reservas internacionales a lo largo del tiempo.
+
+### a) Mostrar el SQL generado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cómo han evolucionado las reservas internacionales a lo largo de los años?',
+  action => 'showsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### b) Ejecutar la consulta generada
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cómo han evolucionado las reservas internacionales a lo largo de los años?',
+  action => 'runsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### c) Narrar el resultado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cómo han evolucionado las reservas internacionales a lo largo de los años?',
+  action => 'narrate',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+---
+
+## 4.5 Diferencia entre depósitos y préstamos por banco
+
+### ¿Qué vamos a hacer?
+Vamos a comparar depósitos y préstamos para entender la relación entre ambas métricas por cada banco.
+
+### a) Mostrar el SQL generado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es la diferencia entre depósitos y préstamos por banco?',
+  action => 'showsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### b) Ejecutar la consulta generada
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es la diferencia entre depósitos y préstamos por banco?',
+  action => 'runsql',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+### c) Narrar el resultado
+
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt => '¿Cuál es la diferencia entre depósitos y préstamos por banco?',
+  action => 'narrate',
+  profile_name => 'OCIGenAI_TUUSUARIO'
+) FROM dual;
+```
+
+---
+
+# ✅ Resultado esperado
+
+Al terminar este laboratorio deberías poder:
+
+- Ver el AI Profile creado en tu esquema
+- Validar sus atributos
+- Ejecutar consultas con Select AI
+- Comparar el comportamiento de:
+  - `showsql`
+  - `runsql`
+  - `narrate`
+
+---
+
+# 💡 Recomendación final
+
+Antes de ejecutar las consultas, confirma siempre que:
+
+- el profile existe,
+- el nombre del profile coincide exactamente,
+- estás conectado con el usuario correcto,
+- y las tablas indicadas en `object_list` existen en tu esquema.
+
+---
