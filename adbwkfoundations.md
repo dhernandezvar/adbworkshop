@@ -253,6 +253,144 @@ https://.../ords/<tuusuario>
 👉 Ese valor es el mismo que colocas en el campo **Path**
 
 ---
+# 📥 Lab: Carga de datos en ADB usando Data Load
+
+---
+
+## 🎯 Objetivo
+
+En esta sección del laboratorio vamos a cargar el archivo **BCR_ES_Dataset.xlsx** dentro de Autonomous Database utilizando la herramienta **Data Load**.
+
+👉 Esto permitirá crear automáticamente las tablas en tu esquema para luego consultarlas con **Select AI**.
+
+---
+
+## 🧠 ¿Qué hace Data Load?
+
+La herramienta **Data Load**:
+
+- Permite cargar archivos Excel o CSV directamente desde el navegador  
+- Detecta automáticamente las hojas (tabs) del archivo  
+- Crea tablas automáticamente en tu esquema  
+- Inserta los datos sin necesidad de escribir SQL  
+
+👉 Es la forma más rápida de preparar datos para el laboratorio.
+
+---
+
+## 🧭 Paso a paso
+
+### 1️⃣ Ir a Data Load
+
+1. En el menú principal de ADB (SQL Developer Web)
+2. Da clic en:
+   👉 **Data Studio → Data Load**
+
+---
+
+### 2️⃣ Iniciar carga de datos
+
+1. Da clic en:
+   👉 **Load Data**
+
+---
+
+### 3️⃣ Seleccionar archivo local
+
+1. Selecciona:
+   👉 **Local Files**
+2. Da clic en:
+   👉 **Select Files**
+
+---
+
+### 4️⃣ Seleccionar el archivo
+
+1. Busca y selecciona el archivo:
+
+```text
+BCR_ES_Dataset.xlsx
+```
+
+👉 Puedes descargarlo desde la guía del laboratorio.
+
+---
+
+### 5️⃣ Validar detección de hojas
+
+Después de seleccionar el archivo:
+
+- Verás que aparecen **3 registros**
+- Cada uno corresponde a una hoja del Excel
+
+👉 Esto significa que:
+
+- Se crearán **3 tablas automáticamente**
+- Cada hoja = una tabla en tu esquema
+
+---
+
+### 6️⃣ Iniciar la carga
+
+1. Da clic en:
+   👉 **Start**
+
+---
+
+### 7️⃣ Ejecutar el proceso
+
+1. Confirma la configuración
+2. Da clic en:
+   👉 **Run**
+
+---
+
+### 8️⃣ Monitorear la carga
+
+1. Ve a la sección:
+   👉 **Table and View Loads**
+
+Aquí podrás ver:
+
+- El progreso de carga de cada tabla  
+- El estado del job  
+
+---
+
+## ✅ Resultado esperado
+
+Una vez finalizado el proceso:
+
+- Verás un **mensaje de éxito**
+- Las tablas estarán disponibles en tu esquema
+
+Ejemplo:
+
+```text
+INDICADORES_MACRO
+SISTEMA_BANCARIO
+TRANSACCIONES_FINANCIERAS
+```
+
+---
+
+## 🚀 Siguiente paso
+
+Con las tablas cargadas ya puedes:
+
+- Consultar datos con SQL  
+- Usar **SELECT AI** en lenguaje natural  
+
+---
+
+## 💡 Tip para el laboratorio
+
+Si no ves las tablas:
+
+- Refresca el esquema  
+- Verifica que estás en el usuario correcto  
+
+---
 
 # 🔐 Lab: Configuración de API Key para conexión desde ADB
 
