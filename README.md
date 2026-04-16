@@ -937,3 +937,270 @@ Antes de ejecutar las consultas, confirma siempre que:
 - y las tablas indicadas en `object_list` existen en tu esquema.
 
 ---
+
+# 🚀 LAB: Configuración de Oracle APEX con Generative AI
+
+> 📄 Basado en el flujo del documento original (GenAI on APEX)
+
+------------------------------------------------------------------------
+
+## 🎯 Objetivo del Laboratorio
+
+Este laboratorio tiene como objetivo integrar Oracle APEX con los
+servicios de **Generative AI en OCI**, permitiendo:
+
+-   🧠 Generación de SQL con lenguaje natural\
+-   ⚙️ Configuración de servicios AI dentro del workspace\
+-   🏗️ Creación de aplicaciones completas asistidas por IA
+
+------------------------------------------------------------------------
+
+## 🧭 Paso 1: Acceso a Workspace Utilities
+
+<img width="787" height="499" alt="image" src="https://github.com/user-attachments/assets/0bd171ae-580a-4d2d-9a87-0f68e64ca4ea" />
+
+
+### 🔎 Navegación
+
+`App Builder → Workspace Utilities`
+
+### 💡 ¿Qué está pasando aquí?
+
+Se accede al panel de administración del workspace, donde viven las
+configuraciones clave:
+
+-   🔐 Web Credentials (credenciales externas)
+-   🤖 Generative AI
+-   🔗 Integraciones REST
+
+👉 Este es el punto de entrada para habilitar capacidades AI dentro de
+APEX.
+
+------------------------------------------------------------------------
+
+## 🔐 Paso 2: Crear Web Credentials
+
+<img width="1668" height="665" alt="image" src="https://github.com/user-attachments/assets/faecea1b-fe32-4737-a263-564eacb99a00" />
+
+<img width="1678" height="355" alt="image" src="https://github.com/user-attachments/assets/67e901d7-0db3-429c-8926-f2979f22f7fd" />
+
+<img width="581" height="267" alt="image" src="https://github.com/user-attachments/assets/67db5d45-6b49-4489-ab71-985b69960abc" />
+
+
+### 🛠️ Configuración
+
+Se registran credenciales OCI:
+
+-   🆔 OCID de usuario *(ofuscado)*
+-   🏢 OCID del tenancy *(ofuscado)*
+-   🔑 Private Key *(ofuscada)*
+-   🧾 Fingerprint
+
+### 🧠 ¿Por qué importa?
+
+Estas credenciales permiten que APEX **se autentique contra OCI** y
+consuma servicios como:
+
+-   Generative AI\
+-   APIs REST\
+-   Servicios cloud protegidos
+
+👉 Sin esto, APEX no puede "hablar" con OCI.
+
+------------------------------------------------------------------------
+
+## 🤖 Paso 3: Configurar Generative AI Service
+
+<img width="1673" height="602" alt="image" src="https://github.com/user-attachments/assets/613fa6aa-beab-4d98-ae82-9799113b28e9" />
+
+<img width="583" height="281" alt="image" src="https://github.com/user-attachments/assets/11cbb2c7-fe77-4fe1-b702-a1e390fd18c6" />
+
+
+### ⚙️ Parámetros clave
+
+-   🧩 Provider: OCI Generative AI\
+-   📦 Compartment OCID *(ofuscado)*\
+-   🌎 Región (ej: `us-ashburn-1`)\
+-   🧠 Modelo (ej: `gpt-4`)\
+-   🔗 Endpoint URL\
+-   🔐 Credencial creada previamente
+
+### 🧪 Validación
+
+Se ejecuta **Test Connection** → ✔ Conexión exitosa
+
+<img width="587" height="289" alt="image" src="https://github.com/user-attachments/assets/30179fec-1b83-4b6a-98eb-65bbb5ac7467" />
+
+
+### 💡 ¿Qué hace esto?
+
+Registra el servicio AI dentro de APEX para que pueda ser usado en:
+
+-   SQL Assistant\
+-   Generación de aplicaciones\
+-   Automatización de tareas
+
+------------------------------------------------------------------------
+
+## 💬 Paso 4: Uso de APEX Assistant en SQL Workshop
+
+<img width="510" height="146" alt="image" src="https://github.com/user-attachments/assets/941cf6a3-e000-4c0a-8777-9b09abe4a032" />
+
+<img width="398" height="158" alt="image" src="https://github.com/user-attachments/assets/d5930a0e-9ad3-42cc-8bac-d68ee44c8818" />
+
+
+### 🧭 Navegación
+
+`SQL Workshop → SQL Commands`
+
+### ⚡ Acción
+
+Se activa el **APEX Assistant** y se acepta el disclaimer.
+
+<img width="383" height="240" alt="image" src="https://github.com/user-attachments/assets/74f66dfe-f73a-4440-acaf-43ad2eeec031" />
+
+
+### 🗣️ Ejemplo de Prompt
+
+``` text
+Quiero una sentencia SQL que me muestre los indicadores macro
+```
+
+### 🤯 Resultado
+
+<img width="774" height="421" alt="image" src="https://github.com/user-attachments/assets/16698905-20a0-4012-9eb2-9b5c663eac60" />
+
+<img width="1919" height="684" alt="image" src="https://github.com/user-attachments/assets/9647a1c6-292b-443c-9be1-4d1bb3d6109e" />
+
+El sistema genera automáticamente una consulta SQL.
+
+### 🧠 ¿Qué significa esto?
+
+Estás usando AI para convertir lenguaje natural en SQL ejecutable.
+
+------------------------------------------------------------------------
+
+## 📊 Paso 5: Ejecución de la consulta
+
+<img width="1911" height="783" alt="image" src="https://github.com/user-attachments/assets/fabda373-8363-4c8d-b0ec-a9acf9352cd4" />
+
+
+### ▶️ Acción
+
+Se ejecuta la consulta generada.
+
+### 📈 Resultado
+
+Se obtienen datos como:
+
+-   📉 Inflación\
+-   💰 PIB\
+-   🌍 Reservas internacionales\
+-   📊 Tasas de interés
+
+### 💡 Insight
+
+Validación real del uso de AI sobre datos existentes.
+
+------------------------------------------------------------------------
+
+## 🏗️ Paso 6: Crear aplicación con Generative AI
+
+<img width="434" height="413" alt="image" src="https://github.com/user-attachments/assets/648cd178-05de-47fa-9d64-073e676fed7d" />
+
+<img width="1908" height="614" alt="image" src="https://github.com/user-attachments/assets/ed4fe661-8938-4d2e-8f25-433860d6ce77" />
+
+<img width="905" height="685" alt="image" src="https://github.com/user-attachments/assets/b6316db5-372e-44a9-911a-493727800810" />
+
+<img width="1236" height="755" alt="image" src="https://github.com/user-attachments/assets/9cf3bd8f-c064-42d2-9d6e-5bd61495d69c" />
+
+
+### 🧭 Navegación
+
+`App Builder → Create Application → Create App Using Generative AI`
+
+### 🗣️ Prompt de ejemplo
+
+Quiero una aplicación que permita mostrar la inflación por año. 
+Además quiero otra pantalla que me muestre un reporte interactivo para validar los datos de activos, depósitos y préstamos del sistema bancario.
+Por último quiero un mantenimiento que muestre todos los datos de las transacciones bancarias.
+
+### 🤖 Resultado
+
+APEX genera automáticamente:
+
+-   Estructura de aplicación\
+-   Páginas\
+-   Componente
+
+<img width="1682" height="769" alt="image" src="https://github.com/user-attachments/assets/c59343d4-9316-4af4-a215-20a36ce75f00" />
+   
+
+------------------------------------------------------------------------
+
+## 🧩 Paso 7: Configuración de la Aplicación
+
+📍 *Referencia: Página 6*
+
+### 🧱 Componentes generados
+
+-   🏦 Vista Anual de Inflación \
+-   🔄 Validador de Datos Bancarios \
+-   📜 Gestor de Transacciones
+
+### 💡 ¿Qué pasó aquí?
+
+La IA no solo genera lógica, también define UX/UI inicial.
+
+------------------------------------------------------------------------
+
+## ▶️ Paso 8: Ejecución de la Aplicación
+
+### 🔐 Pantalla de Login
+
+<img width="1264" height="831" alt="image" src="https://github.com/user-attachments/assets/397bed70-108e-4de8-beaf-48a69d78ee04" />
+
+Acceso autenticado al sistema
+
+### 🏠 Dashboard
+
+Vista Anual de Inflación
+
+<img width="1292" height="625" alt="image" src="https://github.com/user-attachments/assets/5fec4f99-4204-4934-8199-88a08e5432bc" />
+
+
+### 🔄 Módulo de Transacciones
+
+Validador de Datos Bancarios
+
+<img width="960" height="274" alt="image" src="https://github.com/user-attachments/assets/8552662e-3d49-49ef-a6ba-bee34e12bef1" />
+
+Gestor de Transacciones
+
+<img width="954" height="287" alt="image" src="https://github.com/user-attachments/assets/79847251-5b48-4dd1-af96-0a9f44fc64d1" />
+
+
+### 🎯 Resultado final
+
+Aplicación completamente funcional creada con ayuda de AI.
+
+------------------------------------------------------------------------
+
+## 🔒 Consideraciones de Seguridad
+
+-   ❌ No exponer OCIDs reales\
+-   ❌ No publicar llaves privadas\
+-   ✅ Usar variables de entorno / vaults
+
+------------------------------------------------------------------------
+
+## 🧠 Conclusión
+
+Este laboratorio demuestra cómo:
+
+-   🔗 Integrar OCI + APEX + Generative AI\
+-   💬 Generar SQL con lenguaje natural\
+-   🏗️ Crear aplicaciones completas automáticamente\
+-   ⚡ Acelerar el desarrollo low-code
+
+------------------------------------------------------------------------
